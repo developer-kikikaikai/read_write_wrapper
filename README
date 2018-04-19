@@ -1,0 +1,16 @@
+Description:
+ wrapper of fopen/fclose for linux 32 bit.
+ There is a limit of a file size on 32 bit linux (normaly 2GByte), but I have to open over 2GByte data on old linux.
+ So I implememt wrapper to open large file.
+  * Read wapper  :: Split large file to use "split" command and read all split file, if file is larger.
+                    So we can load over 2GByte size file on 32 bit linux by using this API.
+
+  * Write wapper :: Input directory, and write files which size is related to input size.
+                    So we can devide large file as you want.
+
+  Note: this library only wrap fread/fwrite, not support fseek or other APIs.
+
+How to use:
+ Build by make command, and link library in lib directory.
+ API is defined in include directory.
+ Please see sample dir code.
