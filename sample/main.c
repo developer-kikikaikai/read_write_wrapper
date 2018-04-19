@@ -79,6 +79,10 @@ int main() {
 
 	//read handler
 	void * read_handle = large_freader_open(tmpfile, READ_DEVIDE_SIZE);
+	if(!large_freader_is_devide(read_handle)) {
+		fprintf(stderr, "why not is devide file?\n");
+		return -1;
+	}
 	int ret=0;
 	char buffer[WRITE_SIZE];
 	//copy to write dir

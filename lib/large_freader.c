@@ -189,6 +189,17 @@ err:
 	return NULL;
 }
 
+int large_freader_is_devide(void * stream) {
+	READ_DEBUG_PRINT("enter\n");
+	struct large_freader_s * handle = (struct large_freader_s *) stream;
+	//fail safe
+	if(!handle) {
+		return 0;
+	}
+
+	return IS_DEVIDE_FILE(handle);
+}
+
 size_t large_freader_read(void * prt, size_t size,void * stream) {
 	READ_DEBUG_PRINT("enter\n");
 	struct large_freader_s * handle = (struct large_freader_s *) stream;
