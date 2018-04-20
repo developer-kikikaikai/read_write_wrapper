@@ -243,6 +243,8 @@ void large_freader_close(void *stream) {
 	}
 
 	freader_fclose(handle);
+	//move to next
+	handle->cur_index++;
 
 	//if devide file, remove dir
 	if(IS_DEVIDE_FILE(handle)) {
