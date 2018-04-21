@@ -4,7 +4,6 @@
 #include "devide_fwriter.h"
 
 #define FNAME_MAX (128)
-#define DBGFLAG
 #ifdef DBGFLAG
 #define WRITE_DEBUG_PRINT(...)  WRITE_DEBUG_PRINT_(__VA_ARGS__, "")
 #define WRITE_DEBUG_PRINT_(fmt, ...)  \

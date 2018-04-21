@@ -7,7 +7,6 @@
 #define FPREFIX "tmpfile"
 #define FNAME_MAX (128)
 #define CMD_MAX (1024)
-#define DBGFLAG
 #ifdef DBGFLAG
 #define READ_DEBUG_PRINT(...)  READ_DEBUG_PRINT_(__VA_ARGS__, "")
 #define READ_DEBUG_PRINT_(fmt, ...)  \
