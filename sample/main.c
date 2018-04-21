@@ -43,7 +43,7 @@ static int check_hash(char *dir1, char *dir2, char *prefix, int index) {
 }
 
 #define TMPFILE_SIZE (2*1024*1024) //2MByte
-#define READ_DEVIDE_SIZE (10*1024) //2MByte
+#define READ_DEVIDE_SIZE (10*1024) 
 
 static int check_all(char *dir1, char *dir2, char *prefix) {
 	int filenum = TMPFILE_SIZE/write_size();
@@ -57,7 +57,7 @@ static int check_all(char *dir1, char *dir2, char *prefix) {
 	return 1;
 }
 
-int main() {
+static int test_file(unsigned long devidesize) {
 	//create tmp file
 	char tmpfile[]="2mdata";
 	char cmd[128];
@@ -69,20 +69,26 @@ int main() {
 	char prefix[]="test";
 	mkdir(writedir, 0777);
 
-#if 0
-	system("free");
-	int cnt=0;
-	for(cnt=0;cnt<10;cnt++) {
-#endif
 	//writer handler
 	void * write_handle = devide_fwriter_open(writedir, prefix, device_fnc);
 
 	//read handler
-	void * read_handle = large_freader_open(tmpfile, READ_DEVIDE_SIZE);
-	if(!large_freader_is_devide(read_handle)) {
-		fprintf(stderr, "why not is devide file?\n");
-		return -1;
+	void * read_handle = large_freader_open(tmpfile, devidesize);
+	int is_check;
+	if(devidesize < TMPFILE_SIZE) {
+		printf("check devide file\n");
+		if(!large_freader_is_devide(read_handle)) {
+			fprintf(stderr, "why not is devide file?\n");
+			return 0;
+		}
+	} else {
+		printf("check un devide file\n");
+		if(large_freader_is_devide(read_handle)) {
+			fprintf(stderr, "why is devide file?\n");
+			return 0;
+		}
 	}
+
 	int ret=0;
 	char buffer[WRITE_SIZE];
 	//copy to write dir
@@ -101,10 +107,7 @@ int main() {
 	//close
 	large_freader_close(read_handle);
 	devide_fwriter_close(write_handle);
-#if 0
-	system("free");
-	}
-#endif
+
 	char tmpdir[]="tmp2";
 	//check devide data
 	mkdir(tmpdir, 0777);
@@ -114,7 +117,7 @@ int main() {
 	//check hash
 	if(!check_all(writedir, tmpdir, prefix)) {
 		fprintf(stderr, "failed to read/write func!!\n");
-		return -1;
+		return 0;
 	}
 
 	unlink(tmpfile);
@@ -122,5 +125,26 @@ int main() {
 	system(cmd);
 	sprintf(cmd, "rm -rf %s", writedir);
 	system(cmd);
+	return 1;
+}
+
+static int test_separate_file() {
+	return test_file(READ_DEVIDE_SIZE);
+}
+
+static int test_unseparate_file() {
+	return test_file(TMPFILE_SIZE);
+}
+
+int main() {
+	if(!test_separate_file()) {
+		printf("separate file test NG\n");
+		return -1;
+	}
+
+	if(!test_unseparate_file()) {
+		printf("unseparate file test NG\n");
+		return -1;
+	}
 	return 0;
 }

@@ -1,7 +1,7 @@
 TARGET=testread_write
 SRC=$(shell find . -maxdepth 1 -name *.c)
 CFLAG=-g -O0 
-LIBS=-L ../lib/ -lfstream_wrapper
+LIBS=../lib/libfstream_wrapper.a
 INC=-I ../include
 OBJ=$(SRC:%.c=%.o)
 
