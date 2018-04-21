@@ -6,8 +6,8 @@
 #define TMPDIR "/tmp/large_freader_devicefile"
 #define FPREFIX "tmpfile"
 #define FNAME_MAX (128)
-#define CMD_MAX (128)
-//#define DBGFLAG
+#define CMD_MAX (1024)
+#define DBGFLAG
 #ifdef DBGFLAG
 #define READ_DEBUG_PRINT(...)  READ_DEBUG_PRINT_(__VA_ARGS__, "")
 #define READ_DEBUG_PRINT_(fmt, ...)  \
@@ -18,7 +18,7 @@
 
 //handle state check macro
 #define IS_DEVIDE_FILE(handle) ((handle)->tmpdir[0]!=0)
-#define IS_LAST_FILE(handle) ((handle)->cur_index==(handle)->max_index)
+#define IS_LAST_FILE(handle) ((handle)->cur_index>=(handle)->max_index)
 
 //handle
 struct large_freader_s{
@@ -38,7 +38,7 @@ static void freader_fclose(struct large_freader_s *handle);
 
 static void separate_file(const char *path, size_t maxsize,  struct large_freader_s *handle);
 static void get_tmpname(char *name, size_t len);
-static size_t get_size(const char *path);
+static unsigned long get_size(const char *path);
 static void call_cmd(char *cmd, char *result, size_t result_len);
 
 static void get_tmpname(char *name, size_t len) {
@@ -72,11 +72,11 @@ static void call_cmd(char *cmd, char *result, size_t result_len) {
 }
 
 #define SKIP_SPACE_NUM (4)
-static size_t get_size(const char *path) {
+static unsigned long get_size(const char *path) {
 	char cmd[CMD_MAX];
 	char result[CMD_MAX];
 	char *result_p=result;
-	size_t ret=0;
+	unsigned long ret=0;
 
 	snprintf(cmd, sizeof(cmd), "ls -l %s", path);
 	call_cmd(cmd, result, CMD_MAX);
@@ -84,24 +84,25 @@ static size_t get_size(const char *path) {
 	for(i=0;i<SKIP_SPACE_NUM;i++) {
 		result_p=strstr(result_p," ")+1;
 	}
-	ret = atoi(result_p);
-	READ_DEBUG_PRINT("result:%d\n", (int)ret);
+	ret = strtoul(result_p, NULL, 10);
+	READ_DEBUG_PRINT("result:%lu\n", ret);
 	return ret;
 }
 
-static void separate_file(const char *path, size_t maxsize,  struct large_freader_s *handle) {
+static void separate_file(const char *path, unsigned long maxsize,  struct large_freader_s *handle) {
 	char cmd[CMD_MAX]={0};
 	FILE *fp =NULL;
 	READ_DEBUG_PRINT("enter\n");
 
 	//get tmp dir
 	get_tmpname(handle->tmpdir, FNAME_MAX);
+	//it's better to fix permission
 	mkdir(handle->tmpdir, 0777);
 
 	//separate file
 	char name[FNAME_MAX];
 	get_current_dirname(handle, name, FNAME_MAX);
-	snprintf(cmd, sizeof(cmd), "/usr/bin/split -d --suffix-length=6 -b %u %s %s", (unsigned int)maxsize, path, name);
+	snprintf(cmd, sizeof(cmd), "/usr/bin/split -d --suffix-length=6 -b %lu %s %s", maxsize, path, name);
 
 	call_cmd(cmd,NULL,0);
 
@@ -150,7 +151,7 @@ static void remove_devided_file(struct large_freader_s * handle) {
 	rmdir(handle->tmpdir);
 }
 
-void * large_freader_open(const char *path, size_t maxsize) {
+void * large_freader_open(const char *path, unsigned long maxsize) {
 	//use handle
 	READ_DEBUG_PRINT("enter\n");
 	if(!path || maxsize == 0) {
@@ -167,7 +168,7 @@ void * large_freader_open(const char *path, size_t maxsize) {
 	memset(handle, 0, sizeof(struct large_freader_s));
 
 	//check size
-	size_t fsize = get_size(path);
+	unsigned long fsize = get_size(path);
 	if(fsize<=maxsize) {
 		//same as fopen
 		handle->fp=fopen(path, "r");

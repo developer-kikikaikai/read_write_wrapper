@@ -3,7 +3,7 @@
 #include<stdio.h>
 //fix open read only
 //open reader
-void * large_freader_open(const char *path, size_t maxsize);
+void * large_freader_open(const char *path, unsigned long maxsize);
 //if devide file?
 int large_freader_is_devide(void * stream);
 //read file by using reader. stream if returned at large_freader_open

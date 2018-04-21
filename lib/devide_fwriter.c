@@ -4,7 +4,7 @@
 #include "devide_fwriter.h"
 
 #define FNAME_MAX (128)
-//#define DBGFLAG
+#define DBGFLAG
 #ifdef DBGFLAG
 #define WRITE_DEBUG_PRINT(...)  WRITE_DEBUG_PRINT_(__VA_ARGS__, "")
 #define WRITE_DEBUG_PRINT_(fmt, ...)  \
@@ -18,7 +18,7 @@ struct devide_fwriter_s {
 	FILE *fp;
 	char dirname[FNAME_MAX];
 	int index;
-	int writelen;
+	unsigned long writelen;
 	devide_fwiter_gonext gonext;
 };
 
