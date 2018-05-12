@@ -31,6 +31,7 @@ static char * hash_result(char *dir, char *prefix, int index) {
 	fgets(result, 128, fp);
 	pclose(fp);
 //	printf("result:%s\n", result);
+	result[MD5SUM_LEN]=0;
 	return result;
 }
 
@@ -40,6 +41,7 @@ static int check_hash(char *dir1, char *dir2, char *prefix, int index) {
 	int result= memcmp(res1, res2, MD5SUM_LEN)==0;
 	free(res1);
 	free(res2);
+	return result;
 }
 
 #define TMPFILE_SIZE (2*1024*1024) //2MByte
